@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build output — dist/ is staged from the source tree by scripts/stage-dist.js,
+# and src-tauri/target is Rust's build dir. Both are regenerated, never edited.
+dist/
+src-tauri/target/
+src-tauri/gen/apple/
+src-tauri/gen/android/
+
+# Local toolchain installers that happened to be downloaded into the project root
+*.msi
+*.exe
+
+# OS / editor cruft
+desktop.ini
+Thumbs.db
+.DS_Store
+*.swp
+.vscode/
+.idea/
+
+# Local Claude Code settings
+.claude/settings.local.json
+
+# Marketing site — already its own repo (branbee2299/Ashentactics)
+website/

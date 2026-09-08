@@ -1,0 +1,14 @@
+{
+  "name": "ashen-tactics",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ashen Tactics: Embers of Lordran — desktop build",
+  "scripts": {
+    "tauri": "tauri",
+    "dev": "tauri dev",
+    "build": "tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4"
+  }
+}

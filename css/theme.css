@@ -1,0 +1,791 @@
+/* ASHEN TACTICS: EMBERS OF LORDRAN — design system (tokens + shared chrome)
+   Original artwork/styling. Dark Souls-evoking palette: soot, bone, ember, tarnished gold. */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700;800&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap');
+
+:root {
+  --bg0: #070605;
+  --bg1: #0e0c0a;
+  --bg2: #171310;
+  --bg3: #211b15;
+  --panel: rgba(20, 16, 12, 0.92);
+  --line: #3d3225;
+  --line-bright: #5a4a33;
+  --gold: #c9a84c;
+  --gold-bright: #f0d98a;
+  --gold-dim: #8a7440;
+  --bone: #dcd3bd;
+  /* .text-dim/.text-faint (hints, descriptions, italic subtext) were a muddy
+     grey-brown that read as unreadable against the dark backgrounds — brought both
+     up to near-white so they're always legible. */
+  --dim: #efe8d4;
+  --faint: #efe8d4;
+  --ember: #e2662c;
+  --ember-bright: #ff9d5c;
+  --blood: #8c1f1f;
+  --hp: #b03434;
+  --hp-bright: #e05c5c;
+  --energy: #d9a13a;
+  --toughness: #8d7ab5;
+  --sp: #3f7fb5;
+  --heal: #4da96b;
+  --shield: #7fb3d9;
+  --danger: #c0392b;
+  --r1: #8a8a8a;
+  --r2: #5f9e6e;
+  --r3: #4f7ec2;
+  --r4: #9b59b6;
+  --r5: #d4af37;
+  --font-display: 'Cinzel', 'Times New Roman', serif;
+  --font-body: 'EB Garamond', Georgia, serif;
+  --shadow-panel: 0 4px 24px rgba(0, 0, 0, 0.6);
+  --radius: 6px;
+  /* Base unit almost everything in the game (text, most icons, many spacing values)
+     scales from via em — bumped up from 16px since a lot of secondary text/icons
+     (.small at 0.82em, badges, battle stat labels down around 0.6-0.7em, etc.) were
+     unreadably small at the old base. */
+  font-size: 18px;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #000;
+  color: var(--bone);
+  font-family: var(--font-body);
+  overflow: hidden;
+  /* Ember-dagger cursor, matching the title/hub's floating-ember motif. Hotspot
+     (9,9) points at the blade tip in the 64x64 asset, not the image origin. */
+  cursor: url('../assets/ui/cursor.png') 9 9, auto;
+}
+
+/* ── Resolution frame ──
+   The game renders at a fixed virtual resolution (720p/1080p/1440p/4K, chosen in
+   Settings) held in #stage, always 16:9. #viewport is the real browser window: it
+   just paints black letterbox bars and centers #stage, whatever size/aspect the
+   actual window is. #stage's own width/height/transform are set by DS.Layout
+   (js/core/layout.js), never by CSS, since they depend on the chosen resolution and
+   the live window size. */
+#viewport {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  overflow: hidden;
+}
+#stage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  background: radial-gradient(ellipse 120% 80% at 50% -10%, #1a1410 0%, var(--bg0) 62%);
+  overflow: hidden;
+}
+#app { width: 100%; height: 100%; display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; }
+
+h1, h2, h3, h4, .display { font-family: var(--font-display); letter-spacing: 0.04em; margin: 0; }
+h1 { color: var(--gold-bright); }
+h2 { color: var(--gold-bright); font-size: 1.5em; }
+h3 { color: var(--gold); font-size: 1.1em; }
+p { line-height: 1.55; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg1); }
+::-webkit-scrollbar-thumb { background: #3a2f22; border-radius: 5px; border: 2px solid var(--bg1); }
+::-webkit-scrollbar-thumb:hover { background: var(--gold-dim); }
+
+/* ── Buttons ── */
+button, .btn {
+  font-family: var(--font-display);
+  font-size: 0.9em;
+  letter-spacing: 0.05em;
+  background: linear-gradient(180deg, #352b1e, #1f1811);
+  border: 1px solid var(--line-bright);
+  color: var(--gold-bright);
+  padding: 0.55em 1.3em;
+  border-radius: 4px;
+  cursor: url('../assets/ui/cursor.png') 9 9, pointer;
+  transition: all 0.15s ease;
+  position: relative;
+}
+button:hover:not(:disabled), .btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  box-shadow: 0 0 10px rgba(201, 168, 76, 0.35), inset 0 0 12px rgba(201, 168, 76, 0.08);
+  transform: translateY(-1px);
+}
+button:active:not(:disabled) { transform: translateY(0); }
+button:disabled { opacity: 0.35; cursor: not-allowed; }
+button.primary {
+  background: linear-gradient(180deg, #4d3d24, #2b2114);
+  border-color: var(--gold);
+  text-shadow: 0 0 8px rgba(240, 217, 138, 0.4);
+}
+button.danger { border-color: #6e2a22; color: #e0836f; }
+button.danger:hover:not(:disabled) { border-color: var(--danger); box-shadow: 0 0 10px rgba(192, 57, 43, 0.35); }
+button.ghost { background: transparent; border-color: var(--line); color: var(--dim); }
+button.ghost:hover:not(:disabled) { color: var(--bone); }
+button.big { font-size: 1.05em; padding: 0.75em 2em; }
+button.small { font-size: 0.75em; padding: 0.35em 0.8em; }
+
+select {
+  font-family: var(--font-body);
+  font-size: 0.95em;
+  background: linear-gradient(180deg, #2a2216, #1a140e);
+  border: 1px solid var(--line-bright);
+  color: var(--bone);
+  padding: 0.4em 0.8em;
+  border-radius: 4px;
+  cursor: url('../assets/ui/cursor.png') 9 9, pointer;
+}
+select:hover { border-color: var(--gold); }
+select:focus { outline: 1px solid var(--gold); }
+
+/* ── Panels / layout ── */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-panel);
+}
+.panel-ornate {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(201, 168, 76, 0.05), transparent 20%),
+    var(--panel);
+  border: 1px solid var(--line-bright);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-panel), inset 0 0 40px rgba(0, 0, 0, 0.45);
+}
+.screen {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0.8em 1.2em 2em;
+  animation: fadeIn 0.28s ease;
+}
+
+/* Full-bleed looping video backdrop for the Hub. Lives inside #stage (see
+   components.js videoBg) so it fills exactly the game frame and scales with the
+   chosen resolution — absolute+100% of #stage, not the real browser viewport, so it
+   never bleeds into the letterbox bars. z-index:-1 so it sits above #stage's own
+   gradient but below every normal screen element. */
+.screen-bg-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* Camouflages the source video's baked-in corner watermark (see components.js
+   ensureVideoBgEl). Sits directly after the video in DOM order so it paints on top
+   of it while both stay behind #app's own content (same z-index stacking level,
+   later DOM order wins). Heavily feathered so it reads as ambient darkness, not a box. */
+.screen-bg-video-mask {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 24%;
+  height: 34%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 100% 100%, rgba(7, 6, 5, 0.95) 0%, rgba(7, 6, 5, 0.75) 40%, rgba(7, 6, 5, 0) 72%);
+}
+
+/* A second sliver of baked-in caption text sits in the video's very last pixel rows,
+   full width along the bottom edge — a thin gradient strip hides it the same way. */
+.screen-bg-video-mask-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 6%;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(to bottom, rgba(7, 6, 5, 0) 0%, rgba(7, 6, 5, 0.85) 55%, rgba(7, 6, 5, 0.98) 100%);
+}
+
+/* Static backdrop image, pinned in place behind its screen's scrolling content
+   (Expedition, Summoning, Company, Bottomless Box, Covenants, Tidings, Deliveries,
+   Achievements, Shop) — same idea as .screen-bg-video above, just a plain <img>
+   instead of a loop. These screens drop '.screen's usual max-width so the image can
+   cover the whole stage edge-to-edge; their actual content moves into a nested
+   .screen-inner column that keeps the original reading width instead.
+   position:fixed here resolves against #stage, not the real browser viewport,
+   because #stage carries a CSS transform (see js/core/resolution.js) — any
+   transformed ancestor becomes the containing block for a fixed descendant,
+   regardless of how deep it's nested or that #app (in between) scrolls. So the
+   image stays put exactly like the game frame itself while #app's own scroll
+   moves everything else — it can never run out of image partway down a tall list
+   the way an absolutely-positioned-inside-the-scrolling-box image would. */
+.map-screen, .gacha-screen, .characters-screen, .bottomless-box,
+.covenants-screen, .events-screen, .mail-screen,
+.achievements-screen, .shop-screen {
+  position: relative;
+  max-width: none;
+}
+.screen-inner { max-width: 1280px; margin: 0 auto; width: 100%; }
+.screen-bg-parchment {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.4;
+}
+/* Shows the full illustration uncropped, anchored to the top of the frame so it's
+   visible without scrolling instead of centered somewhere in a tall content column. */
+.screen-bg-parchment.contain {
+  object-fit: contain;
+  object-position: center top;
+}
+/* Camouflages the sparkle watermark shared by every one of these generated
+   backgrounds, always in the same relative spot (see components.js screenBgImage). */
+.screen-bg-parchment-mask {
+  position: fixed;
+  left: 75%;
+  top: 72%;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 55% 60%, rgba(8, 7, 6, 0.95) 0%, rgba(8, 7, 6, 0.75) 45%, rgba(8, 7, 6, 0) 78%);
+}
+.screen-header { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6em; margin: 0.4em 0 0.9em; flex-wrap: wrap; }
+.screen-header .hint { color: var(--dim); font-style: italic; }
+.row { display: flex; gap: 0.6em; align-items: center; flex-wrap: wrap; }
+.col { display: flex; flex-direction: column; gap: 0.6em; }
+.spread { justify-content: space-between; }
+.grow { flex: 1; }
+.section-title {
+  font-family: var(--font-display);
+  color: var(--gold);
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin: 0.6em 0 0.35em;
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+.section-title::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--line-bright), transparent); }
+
+/* ── Top bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  padding: 0.5em 1.1em;
+  background: linear-gradient(180deg, rgba(14, 12, 10, 0.98), rgba(14, 12, 10, 0.88));
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(4px);
+}
+.topbar .back-btn { font-size: 1.1em; padding: 0.25em 0.7em; }
+.topbar .screen-name { font-family: var(--font-display); color: var(--gold-bright); font-size: 1.05em; letter-spacing: 0.08em; }
+.topbar .currency {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 0.28em 0.8em 0.28em 0.55em;
+  font-size: 0.88em;
+  color: var(--bone);
+  white-space: nowrap;
+}
+.topbar .currency .cicon { font-size: 1.3em; }
+.topbar .currency .cicon-art { display: inline-flex; width: 1.5em; height: 1.5em; }
+.topbar .currency .cicon-art img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+.path-icon-art { width: 1.1em; height: 1.1em; object-fit: contain; border-radius: 50%; vertical-align: -0.2em; }
+.elem-icon-art { width: 1.1em; height: 1.1em; object-fit: contain; border-radius: 50%; vertical-align: -0.2em; }
+.inline-icon-art { width: 1.1em; height: 1.1em; object-fit: contain; vertical-align: -0.2em; }
+.topbar .player-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  border: 1px solid var(--gold-dim);
+  border-radius: 16px;
+  padding: 0.15em 0.8em;
+  background: rgba(201, 168, 76, 0.07);
+  font-size: 0.85em;
+}
+.player-chip-flame-art { width: 1.3em; height: 1.3em; object-fit: contain; }
+.topbar-icon-btn {
+  width: 2em;
+  height: 2em;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.topbar-icon-btn.has-art { padding: 3px; }
+.topbar-icon-btn.has-art img { width: 100%; height: 100%; object-fit: contain; border-radius: 50%; }
+
+.elem-info { display: flex; flex-direction: column; gap: 0.55em; }
+.elem-info-row {
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  flex-wrap: wrap;
+  font-size: 0.92em;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 0.5em;
+}
+.elem-info-row:last-child { border-bottom: none; padding-bottom: 0; }
+
+/* ── Rarity ── */
+.r1 { --rc: var(--r1); }
+.r2 { --rc: var(--r2); }
+.r3 { --rc: var(--r3); }
+.r4 { --rc: var(--r4); }
+.r5 { --rc: var(--r5); }
+.rarity-border { border: 1px solid var(--rc, var(--line)); box-shadow: 0 0 8px color-mix(in srgb, var(--rc, #000) 30%, transparent); }
+.stars { color: var(--gold); font-size: 0.78em; letter-spacing: 0.12em; text-shadow: 0 0 6px rgba(212, 175, 55, 0.5); }
+
+/* ── Portraits ── */
+.ds-portrait {
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--rc, var(--line-bright));
+  background: radial-gradient(circle at 50% 30%, var(--p-mid, #2a2018), var(--p-dark, #14100c) 75%);
+  box-shadow: inset 0 -14px 24px rgba(0, 0, 0, 0.65), 0 0 10px color-mix(in srgb, var(--rc, #000) 25%, transparent);
+  user-select: none;
+}
+.ds-portrait .glyph {
+  font-size: calc(var(--psize, 64px) * 0.52);
+  filter: drop-shadow(0 0 8px var(--p-accent, rgba(201, 168, 76, 0.6)));
+  z-index: 2;
+}
+.ds-portrait.has-art .portrait-art {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transform: scale(var(--portrait-scale, 1));
+  transform-origin: center 25%;
+  z-index: 2;
+}
+.ds-portrait .aura { position: absolute; inset: 0; opacity: 0.5; z-index: 1; }
+.ds-portrait .aura.ember { background: radial-gradient(ellipse 90% 45% at 50% 100%, rgba(226, 102, 44, 0.5), transparent 70%); }
+.ds-portrait .aura.frost { background: radial-gradient(ellipse 90% 45% at 50% 100%, rgba(126, 200, 227, 0.4), transparent 70%); }
+.ds-portrait .aura.void { background: radial-gradient(ellipse 90% 50% at 50% 100%, rgba(90, 40, 120, 0.55), transparent 70%); }
+.ds-portrait .aura.holy { background: radial-gradient(ellipse 90% 45% at 50% 0%, rgba(232, 220, 154, 0.35), transparent 70%); }
+.ds-portrait .aura.storm { background: radial-gradient(ellipse 90% 45% at 50% 0%, rgba(232, 200, 64, 0.35), transparent 70%); }
+.ds-portrait .aura.soul { background: radial-gradient(ellipse 90% 50% at 50% 100%, rgba(122, 134, 232, 0.45), transparent 70%); }
+.ds-portrait .elem-badge {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  font-size: calc(var(--psize, 64px) * 0.18);
+  border-radius: 50%;
+  width: calc(var(--psize, 64px) * 0.28);
+  height: calc(var(--psize, 64px) * 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3;
+  overflow: hidden;
+}
+.ds-portrait .elem-badge:not(.has-art) {
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+.ds-portrait .elem-badge .elem-badge-art { width: 100%; height: 100%; object-fit: cover; }
+
+.relic-icon-art {
+  width: 1.6em;
+  height: 1.6em;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.weapon-icon-art {
+  display: block;
+  width: 100%;
+  height: 3.4em;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.55));
+}
+
+.item-icon-art {
+  display: block;
+  width: 100%;
+  height: 3em;
+  object-fit: contain;
+  margin: 0 auto;
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.55));
+}
+
+.monogram-fallback {
+  width: 2.2em;
+  height: 2.2em;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--line);
+  font-family: var(--font-display);
+  font-size: 1.1em;
+  color: var(--dim);
+}
+
+/* ── Item/weapon/relic detail modals: art pinned left, text column right ── */
+.detail-layout { display: flex; gap: 1.2em; align-items: flex-start; }
+.detail-icon {
+  flex: 0 0 auto;
+  width: 220px;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6em;
+}
+.detail-icon img { width: 100%; height: 100%; object-fit: contain; filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.6)); }
+.detail-icon .monogram-fallback { width: 100%; height: 100%; font-size: 4em; }
+.detail-content { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 0.55em; }
+.detail-desc { font-size: 1.15em; line-height: 1.55; color: var(--bone); font-style: italic; font-weight: 500; }
+.detail-effect { font-size: 1.1em; line-height: 1.5; color: var(--gold-bright); font-weight: 600; }
+.detail-content .small { font-size: 0.95em; }
+.weapon-stats-now { display: flex; flex-direction: column; gap: 0.25em; padding: 0.5em 0.7em; margin-top: 0.2em; background: rgba(201, 168, 76, 0.06); border: 1px solid var(--gold-dim); border-radius: 6px; }
+@media (max-width: 600px) {
+  .detail-layout { flex-direction: column; align-items: center; text-align: center; }
+  .detail-icon { width: 160px; height: 160px; }
+}
+
+/* ── Relic browsing card (Bottomless Box): big icon, no stats, level badge corner ── */
+.relic-card-big { text-align: center; padding: 1em 0.8em; }
+.relic-big-icon {
+  width: 100%;
+  height: 5.4em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5em;
+}
+.relic-big-icon img { max-width: 100%; max-height: 100%; object-fit: contain; filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.6)); }
+.relic-big-icon .monogram-fallback { width: 2.6em; height: 2.6em; font-size: 1.3em; }
+.relic-piece-name { line-height: 1.25; min-height: 2.3em; }
+.relic-mainstat-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  max-width: 62%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.15;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.45);
+  pointer-events: none;
+}
+.relic-mainstat-badge span:first-child { font-size: 0.62em; letter-spacing: 0.03em; color: var(--faint); text-transform: uppercase; }
+.relic-mainstat-badge span:last-child { font-size: 0.8em; font-weight: 700; color: var(--gold-bright); text-shadow: 0 1px 2px #000; }
+.relic-level-badge {
+  position: absolute;
+  left: 10px;
+  bottom: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95em;
+  color: var(--gold-bright);
+  text-shadow: 0 1px 3px #000, 0 0 8px rgba(240, 217, 138, 0.5);
+}
+.relic-select-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--line-bright);
+  background: rgba(0, 0, 0, 0.4);
+  cursor: url('../assets/ui/cursor.png') 9 9, pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.relic-select-dot:hover { border-color: var(--gold); }
+.relic-select-dot.checked { background: var(--gold-bright); border-color: var(--gold-bright); box-shadow: 0 0 8px rgba(240, 217, 138, 0.6); }
+/* Dimmed but NOT pointer-events:none — an equipped relic's dot still needs to
+   receive the click so onToggleSelect's "Equipped relics cannot be salvaged"
+   toast actually fires. With pointer-events:none the click was silently
+   swallowed here, so the dot just looked broken/unresponsive instead of
+   explaining why that relic can't be picked. */
+.relic-select-dot.disabled { opacity: 0.25; cursor: not-allowed; }
+
+/* ── Bottomless Box: bigger cards + bolder text throughout, per readability request ── */
+.bottomless-box .ds-card { padding: 0.9em; }
+.bottomless-box .ds-card .small { font-size: 0.98em; font-weight: 500; }
+.bottomless-box .item-icon-art { height: 4.2em; }
+.bottomless-box .weapon-icon-art { height: 4.6em; }
+.bottomless-box .row { gap: 1em; }
+.bottomless-box .screen-header h2 { font-size: 1.75em; }
+.bottomless-box .ds-tabs .tab { font-size: 1em; padding: 0.6em 1.3em; }
+
+/* ── Bars ── */
+.ds-bar { position: relative; height: 10px; background: #1a140e; border: 1px solid #000; border-radius: 5px; overflow: hidden; }
+.ds-bar .fill { height: 100%; border-radius: 4px; transition: width 0.3s ease; }
+.ds-bar .fill.hp { background: linear-gradient(90deg, var(--blood), var(--hp-bright)); }
+.ds-bar .fill.energy { background: linear-gradient(90deg, #96690f, var(--energy)); box-shadow: 0 0 6px rgba(217, 161, 58, 0.5); }
+.ds-bar .fill.toughness { background: linear-gradient(90deg, #5d4a86, var(--toughness)); }
+.ds-bar .fill.xp { background: linear-gradient(90deg, #3f6d4e, var(--heal)); }
+.ds-bar-label { display: flex; justify-content: space-between; font-size: 0.68em; color: var(--dim); margin-top: 1px; }
+
+/* ── Cards ── */
+.ds-card {
+  background: linear-gradient(165deg, var(--bg3), var(--bg2) 65%);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0.6em;
+  cursor: url('../assets/ui/cursor.png') 9 9, pointer;
+  transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
+  position: relative;
+}
+.ds-card:hover { transform: translateY(-2px); border-color: var(--gold); box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(201, 168, 76, 0.15); }
+.ds-card.selected { border-color: var(--gold-bright); box-shadow: 0 0 0 1px var(--gold-bright), 0 0 14px rgba(240, 217, 138, 0.3); }
+.ds-card.static { cursor: default; }
+.ds-card.static:hover { transform: none; border-color: var(--line); box-shadow: none; }
+
+/* Full-bleed roster card — mirrors .bunit in battle.css so the same card-frame/scrim
+   classes apply unchanged: art fills the card, the ornate frame overlays on top. */
+.ds-card.full {
+  width: 180px;
+  height: 235px;
+  background: transparent;
+  border: none;
+  padding: 0;
+  overflow: visible;
+}
+.ds-card.full:hover { box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(201, 168, 76, 0.15); }
+.ds-card.full .ds-portrait {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+  border-radius: 6px;
+  box-shadow: none;
+  z-index: 0;
+}
+.badge {
+  font-size: 0.68em;
+  padding: 0.12em 0.55em;
+  border-radius: 10px;
+  border: 1px solid var(--line-bright);
+  color: var(--bone);
+  white-space: nowrap;
+  background: rgba(0, 0, 0, 0.3);
+}
+.notif-dot {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.68em;
+  font-family: var(--font-body);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  border: 1px solid #000;
+  z-index: 5;
+}
+
+/* ── Modal / toast ── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 3, 2, 0.8);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+  animation: fadeIn 0.18s ease;
+  padding: 1em;
+}
+.modal-box {
+  background: linear-gradient(180deg, var(--bg3), var(--bg1));
+  border: 1px solid var(--line-bright);
+  border-radius: 8px;
+  box-shadow: 0 12px 50px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(201, 168, 76, 0.15);
+  max-width: 640px;
+  width: 100%;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.22s ease;
+}
+.modal-box .modal-title {
+  font-family: var(--font-display);
+  color: var(--gold-bright);
+  font-size: 1.15em;
+  padding: 0.7em 1em 0.5em;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.modal-box .modal-body { padding: 0.9em 1em; overflow-y: auto; flex: 1; }
+.modal-box .modal-actions { padding: 0.7em 1em; border-top: 1px solid var(--line); display: flex; gap: 0.6em; justify-content: flex-end; }
+.modal-close { cursor: url('../assets/ui/cursor.png') 9 9, pointer; color: var(--dim); font-size: 1.2em; padding: 0 0.3em; }
+.modal-close:hover { color: var(--bone); }
+
+#toast-zone { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 400; display: flex; flex-direction: column; gap: 6px; align-items: center; pointer-events: none; }
+.toast {
+  background: rgba(20, 16, 12, 0.95);
+  border: 1px solid var(--gold-dim);
+  color: var(--bone);
+  border-radius: 20px;
+  padding: 0.45em 1.2em;
+  font-size: 0.9em;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.7);
+  animation: toastIn 0.25s ease;
+  display: flex;
+  gap: 0.5em;
+  align-items: center;
+}
+.toast.leaving { animation: toastOut 0.3s ease forwards; }
+
+/* ── Tabs ── */
+.ds-tabs { display: flex; gap: 0.25em; border-bottom: 1px solid var(--line); margin-bottom: 0.8em; flex-wrap: wrap; }
+.ds-tabs .tab {
+  font-family: var(--font-display);
+  font-size: 0.85em;
+  letter-spacing: 0.06em;
+  color: var(--dim);
+  padding: 0.5em 1.1em;
+  cursor: url('../assets/ui/cursor.png') 9 9, pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  user-select: none;
+}
+.ds-tabs .tab:hover { color: var(--bone); }
+.ds-tabs .tab.active { color: var(--gold-bright); border-bottom-color: var(--gold); }
+
+/* ── Rewards popup ── */
+.rewards-grid { display: flex; flex-wrap: wrap; gap: 0.5em; justify-content: center; padding: 0.4em 0; }
+.reward-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  background: rgba(201, 168, 76, 0.08);
+  border: 1px solid var(--gold-dim);
+  border-radius: 4px;
+  padding: 0.35em 0.8em;
+  font-size: 0.9em;
+  animation: slideUp 0.3s ease backwards;
+}
+.reward-chip-icon { width: 1.5em; height: 1.5em; object-fit: contain; flex-shrink: 0; border-radius: 3px; }
+
+/* ── Misc ── */
+.empty-state { text-align: center; color: var(--faint); font-style: italic; padding: 2.5em 1em; }
+.hr-ornate { border: none; height: 1px; background: linear-gradient(90deg, transparent, var(--line-bright), transparent); margin: 0.8em 0; }
+.text-dim { color: var(--dim); }
+.text-faint { color: var(--faint); }
+.text-gold { color: var(--gold-bright); }
+.text-danger { color: #e0836f; }
+.text-heal { color: var(--heal); }
+.small { font-size: 0.82em; }
+.italic { font-style: italic; }
+.clickable { cursor: url('../assets/ui/cursor.png') 9 9, pointer; }
+.locked { opacity: 0.4; filter: grayscale(0.7); }
+
+/* Click-anywhere feedback ring (see app.js's global click listener). Appended
+   directly to <body> — position:fixed so it lands exactly at e.clientX/clientY
+   with no coordinate conversion needed, regardless of #stage's own scale
+   transform (see js/core/resolution.js). Self-removes on animationend. */
+.click-ripple {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 48px;
+  height: 48px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+  animation: clickRipple 0.4s cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+}
+@keyframes clickRipple {
+  from { transform: translate(-50%, -50%) scale(0.15); opacity: 0.9; }
+  to { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+}
+
+/* Relic-equip success burst (see DS.C.relicEquipBurst in components.js) — same
+   position:fixed/append-to-body approach as .click-ripple above, so it survives
+   the relic screen's own rerender tearing down the slot cell it was spawned from. */
+.relic-equip-burst { position: fixed; left: 0; top: 0; width: 0; height: 0; pointer-events: none; z-index: 9999; }
+.relic-equip-ring {
+  position: absolute; top: 0; left: 0; width: 56px; height: 56px; margin: -28px 0 0 -28px;
+  border: 3px solid var(--gold-bright); border-radius: 50%;
+  box-shadow: 0 0 14px rgba(240, 217, 138, 0.7);
+  animation: relicRingPop 0.55s cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+}
+@keyframes relicRingPop {
+  from { transform: scale(0.2); opacity: 0.95; }
+  to { transform: scale(2.2); opacity: 0; }
+}
+.relic-equip-spark {
+  position: absolute; top: 0; left: 0; width: 5px; height: 5px; border-radius: 50%;
+  background: var(--gold-bright); box-shadow: 0 0 8px 2px rgba(240, 217, 138, 0.8);
+  animation: relicSparkFly 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+.relic-equip-spark.ember { background: var(--ember-bright); box-shadow: 0 0 8px 2px rgba(255, 157, 92, 0.8); }
+@keyframes relicSparkFly {
+  0% { transform: translate(-50%, -50%) translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) translate(var(--sx), var(--sy)) scale(0.2); opacity: 0; }
+}
+
+/* ── Animations ── */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes toastIn { from { opacity: 0; transform: translateY(12px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes toastOut { to { opacity: 0; transform: translateY(-8px); } }
+@keyframes pulseGold { 0%, 100% { box-shadow: 0 0 6px rgba(212, 175, 55, 0.35); } 50% { box-shadow: 0 0 18px rgba(212, 175, 55, 0.75); } }
+@keyframes shake { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(-6px, 2px); } 40% { transform: translate(5px, -3px); } 60% { transform: translate(-4px, -2px); } 80% { transform: translate(3px, 2px); } }
+@keyframes emberFloat {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0; }
+  10% { opacity: 0.9; }
+  100% { transform: translateY(-90vh) translateX(var(--drift, 30px)) scale(0.3); opacity: 0; }
+}
+@keyframes breathe { 0%, 100% { opacity: 0.75; } 50% { opacity: 1; } }
+
+.reduce-motion * { animation-duration: 0.01s !important; transition-duration: 0.01s !important; }
+
+@media (max-width: 760px) {
+  .screen { padding: 0.5em 0.6em 1.5em; }
+  .topbar { flex-wrap: wrap; gap: 0.4em; padding: 0.4em 0.6em; }
+  :root { font-size: 16px; }
+}

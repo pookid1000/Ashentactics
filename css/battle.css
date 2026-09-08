@@ -1,0 +1,687 @@
+/* ASHEN TACTICS — battle screen styling. Original artwork/styling. */
+
+/* Full-bleed like every other screen (map/gacha/characters/etc.) — no reading-width
+   cap — so the stage genuinely fills whatever resolution is chosen in Settings. */
+.battle-screen { max-width: none; height: 100%; padding: 0.5em 0.6em; }
+
+.battle-stage {
+  position: relative;
+  border: 1px solid var(--line-bright);
+  border-radius: 8px;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  gap: 0.7em;
+  padding: 0.7em;
+  overflow: hidden;
+  background: radial-gradient(ellipse 130% 60% at 50% 0%, #201812 0%, #0c0a07 70%);
+}
+
+/* Elemental Affinities + Settings — battle has no shared topbar, so these live
+   in their own small corner cluster instead (see DS.UI.buildQuickActionButtons). */
+.battle-top-actions {
+  position: absolute; top: 0.6em; right: 0.6em; z-index: 26;
+  display: flex; gap: 0.4em;
+}
+
+/* Right-hand column: both combatant rows, controls pinned to the very
+   bottom. The sidebar (turn order + log, see .battle-sidebar) sits beside it. */
+.battle-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.battle-stage.bg-asylum {
+  background:
+    linear-gradient(180deg, rgba(10, 10, 12, 0.35), rgba(8, 8, 10, 0.75) 70%, rgba(6, 5, 4, 0.92)),
+    url('../assets/backgrounds/asylum.png') center 30% / cover no-repeat,
+    radial-gradient(ellipse 130% 60% at 50% 0%, #1c1c20 0%, #0a0a0c 70%);
+}
+.battle-stage.bg-burg {
+  background:
+    linear-gradient(180deg, rgba(10, 10, 12, 0.35), rgba(8, 8, 10, 0.75) 70%, rgba(6, 5, 4, 0.92)),
+    url('../assets/backgrounds/burg.png') center 30% / cover no-repeat,
+    radial-gradient(ellipse 130% 60% at 50% 0%, #241a10 0%, #0d0906 70%);
+}
+.battle-stage.bg-depths {
+  background:
+    linear-gradient(180deg, rgba(10, 10, 12, 0.35), rgba(8, 8, 10, 0.75) 70%, rgba(6, 5, 4, 0.92)),
+    url('../assets/backgrounds/depths.png') center 30% / cover no-repeat,
+    radial-gradient(ellipse 130% 60% at 50% 0%, #142014 0%, #070c07 70%);
+}
+.battle-stage.bg-anor {
+  background:
+    linear-gradient(180deg, rgba(10, 10, 12, 0.35), rgba(8, 8, 10, 0.75) 70%, rgba(6, 5, 4, 0.92)),
+    url('../assets/backgrounds/anor.png') center 30% / cover no-repeat,
+    radial-gradient(ellipse 130% 60% at 50% 0%, #2a2210 0%, #0f0c06 70%);
+}
+.battle-stage.bg-abyss { background: radial-gradient(ellipse 130% 60% at 50% 0%, #170f24 0%, #08060c 70%); }
+.battle-stage.bg-kiln {
+  background:
+    linear-gradient(180deg, rgba(10, 10, 12, 0.35), rgba(8, 8, 10, 0.75) 70%, rgba(6, 5, 4, 0.92)),
+    url('../assets/backgrounds/kiln.png') center 30% / cover no-repeat,
+    radial-gradient(ellipse 130% 60% at 50% 100%, #2e1408 0%, #0c0705 70%);
+}
+.battle-stage.bg-everlasting_dragon {
+  background:
+    linear-gradient(180deg, rgba(10, 10, 12, 0.35), rgba(8, 8, 10, 0.75) 70%, rgba(6, 5, 4, 0.92)),
+    url('../assets/backgrounds/everlasting_dragon.png') center 30% / cover no-repeat,
+    radial-gradient(ellipse 130% 60% at 50% 0%, #202a20 0%, #0a0c0a 70%);
+}
+.battle-stage.bg-witch_of_izalith {
+  background:
+    linear-gradient(180deg, rgba(10, 10, 12, 0.35), rgba(8, 8, 10, 0.75) 70%, rgba(6, 5, 4, 0.92)),
+    url('../assets/backgrounds/witch_of_izalith.png') center 30% / cover no-repeat,
+    radial-gradient(ellipse 130% 60% at 50% 100%, #3a1408 0%, #0c0705 70%);
+}
+.battle-stage.bg-darkwraith {
+  background:
+    linear-gradient(180deg, rgba(10, 10, 12, 0.35), rgba(8, 8, 10, 0.75) 70%, rgba(6, 5, 4, 0.92)),
+    url('../assets/backgrounds/darkwraith.png') center 30% / cover no-repeat,
+    radial-gradient(ellipse 130% 60% at 50% 0%, #16182a 0%, #08080c 70%);
+}
+.battle-stage.bg-gravelord_servant {
+  background:
+    linear-gradient(180deg, rgba(10, 10, 12, 0.35), rgba(8, 8, 10, 0.75) 70%, rgba(6, 5, 4, 0.92)),
+    url('../assets/backgrounds/gravelord_servant.png') center 30% / cover no-repeat,
+    radial-gradient(ellipse 130% 60% at 50% 0%, #201c1a 0%, #0a0908 70%);
+}
+
+.vfx-shake { animation: shake 0.35s ease; }
+
+/* Turn-order queue — top half of the left sidebar (see .battle-sidebar),
+   listed vertically top-to-bottom in acting order (top = next to act), styled
+   as rectangular list rows (matching the log below it) rather than a row of
+   round portrait chips. */
+.timeline-wrap { flex: 1 1 50%; min-height: 0; display: flex; flex-direction: column; gap: 0.4em; }
+.tl-label { font-family: var(--font-display); font-size: 0.62em; letter-spacing: 0.2em; color: var(--dim); }
+.timeline-strip { display: flex; flex-direction: column; gap: 0.3em; overflow-y: auto; min-height: 0; padding: 0.1em; }
+.tl-chip {
+  display: flex; align-items: center; gap: 0.5em; flex: 0 0 auto; opacity: 0.8;
+  background: rgba(8, 6, 5, 0.55); border: 1px solid var(--line); border-radius: 4px;
+  padding: 0.25em 0.5em; transition: transform 0.2s ease, opacity 0.2s ease, border-color 0.2s ease;
+}
+.tl-chip .ds-portrait { border-radius: 4px; flex: 0 0 auto; }
+.tl-chip.enemy .ds-portrait { border-color: var(--danger); }
+.tl-name { font-size: 0.78em; color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tl-chip.now { opacity: 1; border-color: var(--gold-bright); background: rgba(201, 168, 76, 0.14); transform: scale(1.03); }
+.tl-chip.now .tl-name { color: var(--gold-bright); }
+
+/* unit rows — each takes an EQUAL share of whatever vertical room is left in
+   .battle-main (after the timeline strip and control bar claim their own space),
+   so the cards actually grow to fill the stage instead of sitting small and
+   centered with dead space above the controls. Extra margin between them keeps
+   the two sides reading as clearly separated ranks rather than a stacked pile. */
+/* Grid, not flex — each original enemy gets its own fixed column (--enemy-count,
+   set in JS from B.enemies.length) so a fallen enemy's slot stays put as blank
+   space instead of the survivors re-centering into it. Columns are a fixed
+   width (matching .bunit's old flex-basis) rather than auto-sized, so a hidden
+   .enemy-slot-empty placeholder still holds its column open at full width. */
+.enemy-row {
+  display: grid; grid-auto-flow: column; grid-template-columns: repeat(var(--enemy-count, 1), 260px);
+  justify-content: center; justify-items: center; align-items: stretch;
+  gap: 1em; padding: 0.4em 0; flex: 1 1 0; min-height: 0; margin-bottom: 1.4em;
+}
+.enemy-row .bunit { width: 260px; }
+.enemy-slot-empty { visibility: hidden; }
+.party-row { display: flex; gap: 1em; justify-content: center; flex-wrap: wrap; align-items: stretch; padding: 0.3em 0; flex: 1 1 0; min-height: 0; }
+
+/* ── Battle unit card: full-bleed art, same size as the frame, frame overlaid on top ──
+   Allies and enemies share one uniform size, and that size now scales with the row's
+   own (flexible) height rather than a small fixed px box — each card takes an equal
+   width slot up to a sane cap, so a lone enemy doesn't stretch absurdly wide. */
+.bunit {
+  position: relative;
+  box-sizing: border-box;
+  flex: 0 1 260px;
+  min-width: 160px;
+  max-width: 300px;
+  background: transparent;
+  border-radius: 6px;
+  transition: transform 0.18s ease, filter 0.18s ease, opacity 0.3s ease;
+}
+
+/* The portrait fills the ENTIRE card — same size as the frame — so the frame overlay
+   (below) visually overlaps/covers its outer band, like a picture frame over a photo. */
+.bunit .ds-portrait {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border: none;
+  border-radius: 6px;
+  box-shadow: none;
+  z-index: 0;
+}
+.bunit .ds-portrait .glyph { font-size: 3.6em; }
+
+/* The frame itself — a separate layer, same size as the card, painted on top of the art.
+   Its own box has no background/content, so only its border-image (the ornate metal) is
+   visible; everywhere the source art is transparent, the portrait shows through beneath it. */
+.card-frame {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  border-style: solid;
+  border-width: 18px 16px 20px 16px;
+  border-image-source: url('../assets/ui/card_border.png');
+  border-image-slice: 16% 19% 16% 19%;
+  border-image-repeat: stretch;
+}
+
+/* 5-star roster cards get a diagonal sheen sweep so the rarest characters read as
+   visibly premium next to the rest of the grid. */
+.ds-card.full.r5 { border-radius: 6px; }
+.ds-card.full.r5::after {
+  content: ''; position: absolute; inset: 0; z-index: 5; pointer-events: none;
+  border-radius: 6px;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 246, 210, 0.55) 50%, transparent 58%);
+  background-size: 300% 300%;
+  background-repeat: no-repeat;
+  animation: r5Sheen 3.2s ease-in-out infinite alternate;
+  mix-blend-mode: overlay;
+}
+/* Battle unit cards share the same signature sheen (see the 'r5' class in
+   renderEnemy/renderAlly), but as a real child element (.r5-sheen) rather than
+   a ::after — enemy cards also use ::after/::before for the moves-and-mechanics
+   hover tooltip (card-tooltip), and a pseudo-element can only render ONE thing:
+   whichever rule wins the cascade silently eats the other. */
+.bunit.r5 { border-radius: 6px; }
+.r5-sheen {
+  position: absolute; inset: 0; z-index: 5; pointer-events: none;
+  border-radius: 6px;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 246, 210, 0.55) 50%, transparent 58%);
+  background-size: 300% 300%;
+  background-repeat: no-repeat;
+  animation: r5Sheen 3.2s ease-in-out infinite alternate;
+  mix-blend-mode: overlay;
+}
+/* Boomerang instead of a one-way loop: it plays forward then reverses, so there's
+   never a restart to get wrong — the two endpoints just need to sit safely past
+   the card's edges (nothing visible), which -70%/170% does with plenty of margin. */
+@keyframes r5Sheen {
+  0% { background-position: -70% -70%; }
+  100% { background-position: 170% 170%; }
+}
+
+/* Whose turn it is now — bright, high-contrast rings (a blurred glow alone reads too
+   faint against the busy battle backdrop) rather than one shared faint gold shadow,
+   so ally vs enemy turns are told apart at a glance: gold for the party, red for the
+   enemy (previously identical for both, and both too subtle to read at a glance). */
+.bunit.acting { transform: translateY(-3px); }
+.bunit.ally.acting { box-shadow: 0 0 0 3px var(--gold-bright), 0 0 24px 6px rgba(240, 217, 138, 0.8); }
+.bunit.enemy.acting { box-shadow: 0 0 0 3px var(--hp-bright), 0 0 24px 6px rgba(224, 92, 92, 0.85); }
+.bunit.dead { opacity: 0.28; filter: grayscale(1); pointer-events: none; }
+.bunit.dying { animation: dieFade 2s cubic-bezier(0.4, 0, 0.6, 1) forwards; pointer-events: none; }
+.bunit.targetable { cursor: url('../assets/ui/cursor.png') 9 9, pointer; animation: pulseTarget 0.9s ease infinite; }
+.bunit.hurt { animation: hurtJolt 0.3s ease; }
+
+/* Readability scrims over the art, top (for name) and bottom (for HP/status).
+   Kept shallow so most of the portrait art stays visible — text underneath carries
+   its own shadow/pill background for contrast, so the scrim only needs to take the edge off. */
+.card-top-scrim {
+  position: absolute; top: 0; left: 0; right: 0; height: 20%; z-index: 2;
+  background: linear-gradient(180deg, rgba(6, 5, 4, 0.6), transparent);
+  pointer-events: none;
+}
+.card-bottom-scrim {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 28%; z-index: 2;
+  background: linear-gradient(180deg, transparent, rgba(6, 5, 4, 0.85) 70%);
+  pointer-events: none;
+}
+
+/* Content (name/weakness/status/HP) sits inset from the true card edge by the frame's own
+   border thickness, so it lands inside the frame's opening rather than under its metal band. */
+.bname {
+  position: relative; z-index: 3;
+  font-family: var(--font-display); font-size: 0.78em; color: #f2ede0;
+  text-align: center; line-height: 1.1; padding: 22px 0.5em 0;
+  text-shadow: 0 1px 3px #000, 0 0 6px rgba(0, 0, 0, 0.8);
+}
+.path-row { color: #f2ede0; }
+
+.card-level-badge {
+  position: absolute; right: 14px; bottom: 12px; z-index: 4;
+  font-family: var(--font-display); font-size: 0.92em; font-weight: 700;
+  color: var(--gold-bright);
+  text-shadow: 0 1px 3px #000, 0 0 8px rgba(240, 217, 138, 0.55);
+}
+.card-power-text {
+  font-family: var(--font-display); font-size: 0.92em; font-weight: 700;
+  color: var(--gold-bright);
+  text-shadow: 0 1px 3px #000, 0 0 8px rgba(240, 217, 138, 0.55);
+}
+
+/* Roster card only (not the battle unit card, which reuses .card-bottom for its
+   HP bar/status row) — pull the stars/path down closer to the bottom edge, and
+   size the stars up to match the bigger Power/Level text next to them. */
+.ds-card.full .card-bottom { bottom: 12px; }
+.ds-card.full .stars { font-size: 1.05em; }
+
+.weak-row {
+  position: absolute; top: 22px; right: 18px; z-index: 3;
+  display: flex; gap: 0.25em; font-size: 0.8em;
+}
+.weak-icon { filter: drop-shadow(0 0 3px currentColor) drop-shadow(0 1px 2px #000); }
+
+.card-bottom {
+  position: absolute; left: 18px; right: 18px; bottom: 22px; z-index: 3;
+  display: flex; flex-direction: column; gap: 0.2em;
+}
+.bstatus { display: flex; gap: 0.2em; flex-wrap: wrap; justify-content: center; min-height: 16px; }
+.status-chip {
+  font-size: 0.58em; padding: 0.05em 0.4em; border-radius: 8px;
+  border: 1px solid var(--line); background: rgba(6, 5, 4, 0.6);
+}
+.status-chip.buff { color: #7fd58a; border-color: #3f9e5c66; }
+.status-chip.debuff { color: #e0836f; border-color: #c0392b66; }
+.status-chip.dot { color: #d1a3e6; border-color: #7a4a9e66; }
+.status-chip.has-art { padding: 0.15em; display: inline-flex; }
+.status-chip-art { width: 1.6em; height: 1.6em; object-fit: contain; display: block; border-radius: 50%; }
+
+.broken-tag {
+  position: absolute; top: 20px; left: 50%; transform: translateX(-50%); z-index: 4;
+  background: var(--danger); color: #fff; font-size: 0.58em; font-family: var(--font-display);
+  padding: 1px 8px; border-radius: 8px; letter-spacing: 0.1em;
+}
+
+/* Dark-Souls-style HP bar, pinned to the bottom of the card. */
+.hp-plate { display: flex; flex-direction: column; gap: 2px; }
+.tough-bar {
+  height: 5px; border-radius: 3px; margin-bottom: 1px;
+  background: #0a0806; border: 1px solid #000;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+.hp-ds {
+  position: relative;
+  height: 11px; border-radius: 3px;
+  background: #0a0806;
+  border: 1px solid #000;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(201, 168, 76, 0.3);
+  overflow: visible !important;
+}
+.hp-ds::before {
+  content: ''; position: absolute; left: -5px; top: 50%; transform: translateY(-50%);
+  width: 8px; height: 8px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, var(--gold-bright), var(--gold) 70%);
+  box-shadow: 0 0 5px rgba(201, 168, 76, 0.8), 0 0 0 1px #000;
+  z-index: 3;
+}
+.hp-ds .fill.hp {
+  position: relative;
+  background: linear-gradient(180deg, var(--hp-bright) 0%, var(--blood) 85%);
+  box-shadow: 0 0 6px rgba(224, 92, 92, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+}
+.hp-ds .fill.hp::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 12.5%);
+}
+/* Shield: a blue outlined overlay on top of the HP fill (not a separate bar or a
+   corner number) — its own width tracks shieldHp/maxHp and shrinks smoothly as the
+   shield absorbs damage, same as a health bar depleting. Hidden entirely at 0. */
+.hp-ds .fill.shield-overlay {
+  position: absolute; inset: 0; height: 100%;
+  border-radius: 3px;
+  background: rgba(127, 179, 217, 0.28);
+  border: 2px solid #bfe0f5;
+  box-shadow: 0 0 6px rgba(127, 179, 217, 0.7), inset 0 0 4px rgba(191, 224, 245, 0.5);
+  transition: width 0.3s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+.hp-label { font-size: 0.6em; text-align: right; color: var(--bone); text-shadow: 0 1px 2px #000; }
+
+/* Ult icon — fills upward like a rising ember instead of a separate bar.
+   The overflow:hidden that rounds .ult-fill's square corners off to match the
+   circular button lives on the inner .ult-btn-mask instead of .ult-btn itself —
+   .ult-btn also carries the [data-tooltip] hover card (see below), and an
+   overflow:hidden on the same element that hosts it would clip that tooltip's
+   ::after/::before (positioned well outside this 36px circle) into invisibility. */
+.ult-btn {
+  position: absolute; top: -10px; right: -8px; z-index: 4;
+  width: 36px; height: 36px; border-radius: 50%;
+  padding: 0;
+  background: radial-gradient(circle, #1c160e, #0e0b07);
+  border: 2px solid var(--line);
+}
+.ult-btn-mask {
+  position: absolute; inset: 0; border-radius: 50%; overflow: hidden;
+}
+.ult-btn .ult-fill {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, var(--gold-bright), var(--gold) 75%);
+  clip-path: inset(100% 0 0 0);
+  transition: clip-path 0.4s ease;
+}
+.ult-btn .ult-glyph {
+  position: relative; z-index: 2; display: block;
+  font-size: 1em; color: var(--dim);
+  text-shadow: 0 1px 2px #000;
+  transition: color 0.3s ease;
+}
+.ult-btn.ready {
+  border-color: var(--gold-bright); cursor: url('../assets/ui/cursor.png') 9 9, pointer;
+  animation: pulseGold 1.1s ease infinite;
+}
+.ult-btn.ready .ult-glyph { color: #1a1408; text-shadow: 0 1px 1px rgba(255, 255, 255, 0.4); }
+/* [data-tooltip] (below) sets position:relative at the same specificity as
+   .ult-btn's own position:absolute — without this, whichever rule happens to
+   land later in the cascade would silently win and break the button's
+   top-right corner placement on the card. */
+.ult-btn[data-tooltip] { position: absolute; }
+
+/* control bar — pinned to the very bottom of .battle-main via margin-top:auto,
+   whatever room the rows above leave. Three sections: SP stays far left,
+   ability buttons stay centered in whatever room is left, Auto/Speed/Flee stay
+   far right — regardless of how many ability buttons happen to be showing. */
+.control-bar {
+  display: flex; align-items: center; gap: 0.6em;
+  background: rgba(10, 8, 6, 0.85); border: 1px solid var(--line);
+  border-radius: 8px; padding: 0.5em 0.8em; z-index: 25;
+  margin-top: auto;
+}
+.control-left, .control-right { display: flex; align-items: center; gap: 0.6em; flex: 0 0 auto; }
+.control-center { display: flex; align-items: center; justify-content: center; gap: 0.6em; flex: 1 1 auto; flex-wrap: wrap; }
+.sp-wrap { display: flex; align-items: center; gap: 0.4em; }
+.sp-pips { display: flex; gap: 0.3em; }
+.sp-pip { width: 13px; height: 13px; border-radius: 50%; background: #1c160f; border: 1px solid var(--line); }
+.sp-pip.filled { background: var(--sp); box-shadow: 0 0 6px var(--sp); }
+
+/* ── Combat action bar: ornate engraved-metal plates instead of the plain default
+   button chrome — same worn bronze/gold-on-black palette and beveled-metal
+   language as the unit card frame (assets/ui/card_border.png), so the control
+   bar reads as part of the same forged-metal UI rather than a generic web
+   button row. Fixed sizing (no more per-button growth/shrink from ability
+   description text — that now lives in the [data-tooltip] hover card instead,
+   which needs ::before/::after free on these buttons, hence no pseudo-element
+   corner decoration here). ── */
+.control-bar button {
+  position: relative;
+  font-size: 1.1em;
+  min-height: 3.4em;
+  padding: 0.7em 1.5em;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), transparent 30%),
+    linear-gradient(160deg, #3c3120 0%, #241c12 55%, #14100a 100%);
+  border: 1px solid var(--line-bright);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(201, 168, 76, 0.14);
+  transition: filter 0.16s ease, box-shadow 0.16s ease, transform 0.16s ease, border-color 0.16s ease;
+}
+.control-bar button:hover:not(:disabled) {
+  filter: brightness(1.15);
+  border: 2px solid var(--gold-bright);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55), 0 0 16px rgba(201, 168, 76, 0.45), inset 0 0 0 1px rgba(240, 217, 138, 0.25);
+  transform: translateY(-2px);
+}
+.control-bar button.primary {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 30%),
+    linear-gradient(160deg, #5c4a28 0%, #2e2412 55%, #180f08 100%);
+  border-color: var(--gold);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55), 0 0 12px rgba(240, 217, 138, 0.3), inset 0 0 0 1px rgba(240, 217, 138, 0.2);
+}
+.control-bar button.danger { border-color: #6e2a22; }
+.control-bar button.danger:hover:not(:disabled) { border-color: var(--danger); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55), 0 0 16px rgba(192, 57, 43, 0.5); }
+.control-bar button:disabled { filter: grayscale(0.6) brightness(0.7); }
+
+.ability-btn { display: flex; flex-direction: column; align-items: flex-start; min-width: 11em; text-align: left; }
+.ability-btn .ab-label { font-size: 0.92em; }
+.ability-btn.pending { border-color: var(--gold-bright); animation: pulseGold 1.1s ease infinite; }
+
+/* Hover tooltip — replaces the old always-visible .ab-desc text under each
+   ability's label. Fantasy-parchment card so it reads as part of the same UI,
+   not a generic browser tooltip. */
+[data-tooltip] { position: relative; }
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute; left: 50%; bottom: calc(100% + 12px); transform: translateX(-50%) translateY(6px);
+  width: max-content; max-width: 260px;
+  background: linear-gradient(165deg, var(--bg3), var(--bg1) 70%);
+  border: 1px solid var(--gold-dim);
+  color: var(--bone);
+  font-family: var(--font-body); font-size: 0.92em; font-weight: 400; letter-spacing: normal;
+  line-height: 1.35; text-align: left; white-space: normal;
+  padding: 0.55em 0.75em; border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.65), 0 0 12px rgba(201, 168, 76, 0.18);
+  opacity: 0; visibility: hidden; pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  z-index: 60;
+}
+[data-tooltip]::before {
+  content: ''; position: absolute; left: 50%; bottom: calc(100% + 5px); transform: translateX(-50%);
+  border: 6px solid transparent; border-top-color: var(--gold-dim);
+  opacity: 0; visibility: hidden; transition: opacity 0.15s ease;
+  z-index: 60;
+}
+[data-tooltip]:hover::after, [data-tooltip]:focus-visible::after { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
+[data-tooltip]:hover::before, [data-tooltip]:focus-visible::before { opacity: 1; visibility: visible; }
+
+/* Enemy/boss "moves and mechanics" tooltip — anchored to a card sitting near the
+   top of the stage, so it opens BELOW instead of above (would otherwise run off
+   the top of the screen or under the corner Settings/Elements buttons), and is
+   wider with real line breaks (one ability/mechanic per line) instead of a
+   single wrapped sentence. */
+[data-tooltip].card-tooltip::after {
+  bottom: auto; top: calc(100% + 10px); transform: translateX(-50%) translateY(-6px);
+  max-width: 320px; white-space: pre-line;
+}
+[data-tooltip].card-tooltip:hover::after, [data-tooltip].card-tooltip:focus-visible::after { transform: translateX(-50%) translateY(0); }
+[data-tooltip].card-tooltip::before {
+  bottom: auto; top: calc(100% + 4px);
+  border-top-color: transparent; border-bottom-color: var(--gold-dim);
+}
+
+/* Left-hand sidebar: the turn-order queue (top half) stacked over the log
+   (bottom half), both long-ways down the side rather than the log alone. */
+.battle-sidebar {
+  flex: 0 0 230px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+}
+.battle-log {
+  flex: 1 1 50%;
+  min-height: 0;
+  width: 100%; overflow-y: auto; font-size: 0.78em; color: var(--dim);
+  background: rgba(8, 6, 5, 0.7); border: 1px solid var(--line); border-radius: 6px;
+  padding: 0.6em 0.8em; z-index: 25;
+}
+.battle-log div:last-child { color: var(--bone); }
+
+/* floating text — every size below doubled (2x) from its original value. Each
+   variant sets font-size directly rather than compounding on the base, so the
+   base and every variant needed its own explicit doubling to actually grow. */
+.float-text {
+  position: absolute; z-index: 40; pointer-events: none;
+  font-family: var(--font-display); font-weight: 700; font-size: 2.3em;
+  color: #e8e0cc; text-shadow: 0 2px 4px #000, 0 0 8px rgba(0,0,0,0.8);
+  animation: floatUp 2.8s linear forwards;
+  transform: translateX(-50%);
+}
+.float-text.crit { font-size: 3.2em; color: var(--gold-bright); text-shadow: 0 0 12px rgba(240, 217, 138, 0.7), 0 2px 4px #000; }
+.float-text.heal { color: #7fd58a; }
+.float-text.shield-txt { color: #7fb3d9; font-size: 1.9em; }
+.float-text.miss { color: var(--dim); font-style: italic; }
+.float-text.weak-tag { font-size: 1.4em; color: var(--ember-bright); letter-spacing: 0.15em; }
+.float-text.break-tag { font-size: 3em; color: var(--ember-bright); letter-spacing: 0.12em; }
+.float-text.dot-dmg { font-size: 1.7em; color: #d1a3e6; }
+.float-text.buff-tag { font-size: 1.4em; color: #7fd58a; }
+.float-text.debuff-tag { font-size: 1.4em; color: #e0836f; }
+.float-text.true-dmg { color: #c9b3e6; }
+
+/* banners */
+.action-banner {
+  position: absolute; top: 2%; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-display); font-size: 1.05em; letter-spacing: 0.08em;
+  color: var(--gold-bright); background: rgba(8, 6, 4, 0.85);
+  border: 1px solid var(--gold-dim); border-radius: 4px; padding: 0.3em 1.2em;
+  z-index: 35; animation: bannerIn 1.1s ease forwards; pointer-events: none;
+  white-space: nowrap; max-width: 92%; overflow: hidden; text-overflow: ellipsis;
+}
+.action-banner.enemy { color: #e0836f; border-color: #6e2a22; }
+
+.phase-banner {
+  position: absolute; inset: 30% 0 auto 0; text-align: center; z-index: 45; pointer-events: none;
+  animation: phaseIn 2.4s ease forwards;
+}
+.phase-banner .phase-name {
+  font-family: var(--font-display); font-size: 2em; color: var(--danger);
+  letter-spacing: 0.2em; text-shadow: 0 0 24px rgba(192, 57, 43, 0.7), 0 2px 6px #000;
+}
+.phase-banner .phase-line { color: var(--bone); font-style: italic; margin-top: 0.4em; text-shadow: 0 2px 4px #000; }
+
+/* cut-in overlay */
+.cutin-overlay {
+  position: absolute; inset: 0; z-index: 300;
+  background: radial-gradient(ellipse at center, var(--cut2) 0%, #050403 75%);
+  display: flex; align-items: flex-end; justify-content: center;
+  animation: fadeIn 0.25s ease; overflow: hidden;
+}
+.cutin-overlay.leaving { animation: cutinOut 0.35s ease forwards; }
+.cutin-bg-portrait {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover; object-position: center 18%;
+  animation: cutinPortraitIn 0.7s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+/* Snake/wyrm-type ults (anim:{type:'serpent_bite'}, see js/ui/vfx.js's cutIn) —
+   a sharper lunge-toward-camera instead of the default gentle settle, so it
+   reads as the boss's own head striking at the viewer. */
+.cutin-bg-portrait.lunge {
+  animation: cutinLunge 0.55s cubic-bezier(0.5, 0, 0.4, 1);
+}
+/* The shared "actual creature" for serpent_bite ults — see vfx.js's cutIn.
+   isolation:isolate scopes mix-blend-mode:screen to just this element so it
+   only drops out the maw art's own black background, not the rest of the page. */
+.serpent-maw-wrap {
+  position: absolute; inset: 0; z-index: 305;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none; isolation: isolate;
+  animation: mawLunge 0.56s cubic-bezier(0.3, 0, 0.15, 1) forwards;
+}
+.serpent-maw-strike {
+  width: 62%; max-width: 620px; object-fit: contain;
+  mix-blend-mode: screen;
+  filter: drop-shadow(0 0 50px var(--cut3)) drop-shadow(0 0 90px var(--cut3));
+}
+.cutin-glyph-fallback {
+  position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+  animation: faceSlide 0.6s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+.cutin-portrait-scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(5, 4, 3, 0.1) 0%, rgba(5, 4, 3, 0.35) 45%, rgba(5, 4, 3, 0.97) 92%);
+}
+.cutin-rays {
+  position: absolute; inset: -50%;
+  background: repeating-conic-gradient(from 0deg, transparent 0deg 12deg, var(--cut3) 12deg 13deg, transparent 13deg 24deg);
+  opacity: 0.12; animation: raysSpin 6s linear infinite;
+}
+.cutin-band {
+  position: relative;
+  display: flex; align-items: center; justify-content: center; gap: 1.4em; padding: 1.2em 3em;
+  margin-bottom: 6vh;
+  border-top: 1px solid var(--cut3); border-bottom: 1px solid var(--cut3);
+  animation: bandSlide 0.5s cubic-bezier(0.2, 0.9, 0.3, 1);
+  max-width: 92vw;
+}
+.cutin-title {
+  font-family: var(--font-display); font-size: 2em; letter-spacing: 0.14em;
+  color: var(--gold-bright); text-shadow: 0 0 20px var(--cut3);
+}
+.cutin-line { color: var(--bone); font-style: italic; margin-top: 0.3em; font-size: 1.05em; }
+
+/* end overlay */
+.battle-end-overlay {
+  position: absolute; inset: 0; z-index: 100;
+  background: rgba(5, 4, 3, 0.88); backdrop-filter: blur(3px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1em;
+  animation: fadeIn 0.6s ease;
+}
+.battle-end-overlay h1 { font-size: 3.2em; letter-spacing: 0.25em; }
+.battle-end-overlay.win h1 { color: var(--gold-bright); text-shadow: 0 0 30px rgba(240, 217, 138, 0.5); animation: victoryIn 0.8s cubic-bezier(0.2, 0.9, 0.3, 1); }
+.battle-end-overlay.lose h1 { color: #a03030; text-shadow: 0 0 30px rgba(160, 48, 48, 0.6); font-size: 3.8em; animation: diedIn 1.6s ease; }
+
+/* Crown of Cinders wave-to-wave fog wipe (see playFogTransition in battle-ui.js) —
+   fixed to the viewport, not the stage, since it has to survive the next
+   wave's own battle-stage getting torn down and rebuilt underneath it while
+   fully covered. Three layered blobs drifting at different speeds/directions
+   read as rolling fog rather than a flat grey wipe. */
+.fog-transition-overlay {
+  position: fixed; inset: 0; z-index: 400; opacity: 0; pointer-events: none;
+  transition: opacity 0.65s ease; background: #0c0b0a; overflow: hidden;
+}
+.fog-transition-overlay.covering { opacity: 1; }
+.fog-transition-overlay.clearing { opacity: 0; transition-duration: 0.75s; }
+.fog-layer {
+  position: absolute; inset: -20%; opacity: 0.85;
+  background-repeat: no-repeat;
+}
+.fog-layer.a { background: radial-gradient(ellipse 60% 50% at 20% 40%, rgba(210, 210, 205, 0.9), transparent 70%); animation: fogDriftA 3.5s ease-in-out infinite alternate; }
+.fog-layer.b { background: radial-gradient(ellipse 55% 45% at 75% 60%, rgba(190, 190, 188, 0.85), transparent 70%); animation: fogDriftB 4.2s ease-in-out infinite alternate; }
+.fog-layer.c { background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(160, 158, 150, 0.75), transparent 75%); animation: fogDriftC 5s ease-in-out infinite alternate; }
+@keyframes fogDriftA { from { transform: translate(-3%, -2%) scale(1); } to { transform: translate(4%, 3%) scale(1.08); } }
+@keyframes fogDriftB { from { transform: translate(3%, 2%) scale(1.05); } to { transform: translate(-4%, -3%) scale(1); } }
+@keyframes fogDriftC { from { transform: translate(0, -3%) scale(1.1); } to { transform: translate(2%, 3%) scale(1); } }
+.end-stars { font-size: 2em; color: var(--gold); letter-spacing: 0.3em; text-shadow: 0 0 14px rgba(212, 175, 55, 0.6); }
+
+/* Pop in fast, hold fully visible (readable) for a real ~2s, then fade slowly
+   over the last ~0.8s of the 2.8s total — numbers shouldn't feel like they
+   flicker past before they can be read. margin-top has NO stop at 71% (where
+   opacity's hold ends) — with only two stops (4% and 100%) and a `linear`
+   timing-function, the browser interpolates it as one continuous, constant-
+   speed climb across the whole span instead of two segments (a near-static
+   hold then a sudden rush) that felt like a hitch where they met. */
+@keyframes floatUp { 0% { opacity: 0; margin-top: 6px; } 4% { opacity: 1; margin-top: 0; } 71% { opacity: 1; } 100% { opacity: 0; margin-top: -130px; } }
+@keyframes bannerIn { 0% { opacity: 0; transform: translateX(-50%) translateY(-8px); } 12% { opacity: 1; transform: translateX(-50%) translateY(0); } 85% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes phaseIn { 0% { opacity: 0; letter-spacing: 0.5em; } 15% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes pulseTarget { 0%, 100% { box-shadow: 0 0 6px rgba(192, 57, 43, 0.4); } 50% { box-shadow: 0 0 16px rgba(192, 57, 43, 0.85); } }
+@keyframes hurtJolt { 0% { transform: translateX(0); } 30% { transform: translateX(-5px); } 60% { transform: translateX(4px); } 100% { transform: translateX(0); } }
+/* A defeated enemy first drains to grey (life leaving the body), then
+   trembles/breaks apart (paced to the ember/ash burst fired mid-shake — see
+   the 'death' case in battle-ui.js), then finally collapses and fades away.
+   Three clearly distinct beats over a full 2s, not a single instant cut. */
+@keyframes dieFade {
+  0%   { opacity: 1; filter: grayscale(0) brightness(1); transform: translate(0, 0) rotate(0deg) scale(1); }
+  35%  { opacity: 1; filter: grayscale(1) brightness(0.78); transform: translate(0, 0) rotate(0deg) scale(1); }
+  41%  { filter: grayscale(1) brightness(0.72); transform: translate(-7px, 0) rotate(-3deg) scale(1.015); }
+  47%  { filter: grayscale(1) brightness(0.68); transform: translate(6px, 0) rotate(3deg) scale(1.015); }
+  53%  { filter: grayscale(1) brightness(0.64); transform: translate(-6px, 0) rotate(-2.5deg) scale(1); }
+  59%  { filter: grayscale(1) brightness(0.6); transform: translate(5px, 0) rotate(2.5deg) scale(1); }
+  65%  { filter: grayscale(1) brightness(0.56); transform: translate(-3px, 0) rotate(-1deg) scale(0.99); }
+  71%  { opacity: 0.97; filter: grayscale(1) brightness(0.52); transform: translate(2px, 2px) rotate(1deg) scale(0.98); }
+  100% { opacity: 0; filter: grayscale(1) brightness(0.35); transform: translate(0, 34px) rotate(-7deg) scale(0.84); }
+}
+@keyframes raysSpin { to { transform: rotate(360deg); } }
+@keyframes bandSlide { from { transform: translateX(-40px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes faceSlide { from { transform: translateX(-70px) scale(0.9); opacity: 0; } to { transform: translateX(0) scale(1); opacity: 1; } }
+@keyframes cutinPortraitIn { from { opacity: 0; transform: scale(1.08); } to { opacity: 1; transform: scale(1); } }
+@keyframes cutinLunge {
+  0% { opacity: 0; transform: scale(0.82) translateY(2%); }
+  35% { opacity: 1; transform: scale(0.94) translateY(1%); }
+  70% { transform: scale(1.16) translateY(-1%); }
+  100% { transform: scale(1.05) translateY(0); }
+}
+@keyframes mawLunge {
+  0% { opacity: 0; transform: scale(0.18); }
+  50% { opacity: 1; transform: scale(1.08); }
+  68% { transform: scale(0.94); }
+  80% { transform: scale(1.02); }
+  100% { opacity: 0; transform: scale(1.18); }
+}
+@keyframes cutinOut { to { opacity: 0; transform: scale(1.06); } }
+@keyframes victoryIn { from { opacity: 0; transform: scale(1.4); } to { opacity: 1; transform: scale(1); } }
+@keyframes diedIn { 0% { opacity: 0; transform: scale(0.9); } 40% { opacity: 1; } 100% { transform: scale(1.02); } }
+
+@media (max-width: 760px) {
+  .bunit { flex-basis: 122px; min-width: 100px; max-width: 158px; }
+  .battle-stage { flex-direction: column; }
+  .battle-sidebar { flex: 0 0 130px; flex-direction: row; }
+  .battle-log { flex: 1 1 50%; }
+  .cutin-title { font-size: 1.3em; }
+  .battle-end-overlay h1 { font-size: 2.2em; }
+}

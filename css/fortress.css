@@ -1,0 +1,201 @@
+/* ASHEN TACTICS — Fortress roguelike mode styling. The map graph itself
+   reuses hub.css's .world-graph/.map-node/.node-ring/.node-fog-patch/.state-*
+   classes verbatim (same SVG structure, see js/ui/fortress-ui.js) — this file
+   only adds what's genuinely new: per-kind ring colors for the node kinds the
+   base game doesn't have (shop/forge/trap/event), the squad/Cinders HUD,
+   perk-card styling, and the trap dice-roll reveal. */
+
+.fortress-screen { position: relative; max-width: none; }
+
+/* The Fortress graph packs 21 floors into a serpentine, several-floors-per-row
+   layout (see FLOORS_PER_ROW in js/engine/fortress.js) rather than one lone
+   row per floor, so unlike the base .world-graph-wrap (which just clips to
+   whatever height its aspect-ratio works out to), this one caps its height
+   and scrolls internally for whatever doesn't fit — scoped to this extra
+   class, not .world-graph-wrap itself, so the Expedition map's own sizing is
+   untouched. It's also appended as a sibling of (not nested inside) the
+   screen's .screen-inner column — see js/ui/fortress-ui.js — so this 100%
+   resolves against the full-bleed .fortress-screen, not the ~1280px reading
+   column every other screen's content sits in. */
+.fortress-graph-wrap { overflow-x: hidden; overflow-y: auto; max-height: 74vh; margin: 0 -1.2em; }
+
+/* Edges default to a dim gold (readable against the Expedition map's much
+   busier per-world art) — brightened here, scoped to the Fortress graph only,
+   since its own backdrop plus 21 floors of them needs a clearer, more visible
+   line to actually read as a path at a glance. */
+.fortress-graph .graph-edge { stroke: #efe8d4; stroke-width: 0.8; opacity: 0.95; }
+.fortress-graph .graph-edge.fogged { stroke: #8f846c; opacity: 0.65; }
+
+.kind-shop .node-ring { stroke: var(--gold); }
+.kind-forge .node-ring { stroke: #c97a3f; }
+.kind-trap .node-ring { stroke: var(--hp-bright); }
+.kind-event .node-ring { stroke: #7ec8e3; }
+.kind-rest .node-ring { stroke: var(--heal); }
+.kind-wager .node-ring { stroke: #e0a72e; }
+.kind-altar .node-ring { stroke: #6e3fa3; }
+.kind-secret .node-ring { stroke: #cfe8e0; }
+
+/* ── fullscreen starter-pick overlay ── */
+/* Appended straight to <body>, same convention as the covenant key/lock
+   unlock animation and the gacha ritual overlay — sits above the whole game
+   frame regardless of what screen re-renders underneath it. */
+.fortress-picker-overlay {
+  position: fixed; inset: 0; z-index: 500;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1em;
+  background: radial-gradient(ellipse at center, rgba(20, 14, 8, 0.92) 0%, rgba(5, 3, 2, 0.98) 100%);
+  animation: fadeIn 0.4s ease;
+}
+.fortress-picker-overlay.leaving { animation: cutinOut 0.3s ease forwards; }
+.fortress-picker-title { font-size: 1.8em; color: var(--gold-bright); }
+.fortress-picker-sub { margin-bottom: 0.4em; }
+.fortress-picker-row { display: flex; gap: 1.5em; flex-wrap: wrap; justify-content: center; padding: 0 1em; }
+.fortress-picker-card {
+  cursor: url('../assets/ui/cursor.png') 9 9, pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: cutinPortraitIn 0.5s ease backwards;
+}
+.fortress-picker-card:nth-child(2) { animation-delay: 0.08s; }
+.fortress-picker-card:nth-child(3) { animation-delay: 0.16s; }
+.fortress-picker-card:hover { transform: translateY(-10px) scale(1.03); box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 24px rgba(240, 217, 138, 0.35); }
+
+@media (max-width: 720px) {
+  .fortress-picker-row { gap: 0.8em; }
+  .fortress-picker-card { transform: scale(0.8); }
+}
+
+/* ── squad / Cinders HUD ── */
+.fortress-hud {
+  display: flex; flex-direction: column; gap: 0.6em;
+  padding: 0.7em 1em; margin-bottom: 0.8em;
+}
+.fortress-hud-top { align-items: center; gap: 1em; flex-wrap: wrap; }
+.fortress-cinders { font-family: var(--font-display); color: var(--gold-bright); font-size: 1.05em; }
+.fortress-merchant-line { color: var(--gold-dim); margin-bottom: 0.6em; }
+.fortress-companion-line { color: var(--dim); margin: 0.6em 0; }
+.fortress-boon-chip {
+  display: flex; align-items: center; gap: 0.3em; padding: 0.25em 0.7em;
+  border-radius: 999px; font-size: 0.85em; background: var(--bg2, #1c160e);
+  border: 1px solid var(--gold-dim); color: var(--gold-bright); cursor: default;
+}
+.fortress-squad-row { flex: 1 1 auto; gap: 0.5em; }
+.fortress-squad-chip { position: relative; width: 48px; height: 48px; border-radius: 50%; overflow: visible; }
+.fortress-squad-chip.wounded .ds-portrait { filter: saturate(0.5) brightness(0.75); }
+.fortress-squad-chip .wound-badge {
+  position: absolute; bottom: -4px; right: -4px; font-size: 0.9em;
+  background: #1a0605; border: 1px solid var(--hp-bright); border-radius: 50%;
+  width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+}
+/* HP carries between fights now (see getHpFraction/recordHpFractions) — a
+   small always-visible readout under the portrait, distinct from the wound
+   badge (a wound is a temporary debuff; this is raw remaining health). */
+.fortress-squad-chip .fortress-hp-badge {
+  position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%);
+  font-size: 0.68em; line-height: 1; padding: 0.15em 0.4em; white-space: nowrap;
+  background: #1a0605; border: 1px solid var(--heal); border-radius: 999px; color: var(--heal);
+}
+
+/* Perk pills — icon AND name are always plain visible text, not hidden
+   behind a hover (the hover tooltip is still there as a bonus with the full
+   effect line). The "View Perks" button opens the complete, guaranteed-
+   visible list (icon/name/rarity/full description) via openPerksModal() in
+   js/ui/fortress-ui.js — these pills are just the quick-glance summary.
+   Rarity color borrows the same --rc custom property every other
+   rarity-tiered card in the game already sets via .r1-.r5. */
+.fortress-perks-row { display: flex; align-items: center; gap: 0.4em; flex-wrap: wrap; }
+.fortress-perks-label { margin-right: 0.2em; }
+.fortress-perk-chip {
+  display: flex; align-items: center; gap: 0.35em; padding: 0.25em 0.6em 0.25em 0.4em;
+  border-radius: 999px; font-size: 0.85em;
+  background: var(--bg2, #1c160e); border: 1px solid var(--rc, var(--line-bright));
+  cursor: default;
+}
+.fortress-perk-chip-icon { font-size: 1.15em; line-height: 1; }
+.fortress-perk-chip-name { color: var(--text, #d9d2c3); white-space: nowrap; }
+/* Curses are never curable, so this chip has no rarity tier to borrow a
+   color from (see curseChip() in js/ui/fortress-ui.js) — tinted violet-red
+   instead, distinct from any perk rarity color, to read as "debuff." */
+.fortress-curse-chip { border-color: #6e3fa3; }
+.fortress-curse-chip .fortress-perk-chip-name { color: #d9a8ff; }
+
+/* ── full perk list modal ── */
+.fortress-perk-list-row { padding: 0.7em 0.9em; margin-bottom: 0.5em; border-left: 3px solid var(--rc, var(--line-bright)); }
+.fortress-perk-list-row .fortress-perk-icon { font-size: 1.6em; margin-right: 0.6em; }
+
+/* ── perk cards (choice modal + Shop tiles) ── */
+.fortress-choice-row { gap: 1em; flex-wrap: wrap; justify-content: center; }
+.fortress-perk-card {
+  position: relative;
+  width: 190px; padding: 1em; text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 0.4em;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.fortress-perk-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5); }
+.fortress-perk-icon { font-size: 2.2em; line-height: 1; }
+/* Real art replaces the emoji glyph inline wherever perk/trap/event icons are
+   rendered (see iconOrEmoji() in js/ui/fortress-ui.js) — sized relative to
+   whatever font-size the surrounding glyph slot already set, so it drops in
+   at the same visual weight the emoji held. */
+.fortress-perk-icon img, .fortress-perk-chip-icon img, .fortress-perk-list-row .fortress-perk-icon img {
+  width: 1em; height: 1em; object-fit: cover; border-radius: 6px; vertical-align: -0.15em;
+}
+.fortress-flavor-icon { text-align: center; margin-bottom: 0.6em; }
+.fortress-flavor-icon img { width: 64px; height: 64px; object-fit: cover; border-radius: 8px; border: 1px solid var(--line-bright); }
+
+/* ── altar card (two-toned: curse half + guaranteed-perk half) ── */
+.fortress-altar-card { padding: 0; overflow: hidden; gap: 0; }
+.fortress-altar-half { width: 100%; padding: 1em; display: flex; flex-direction: column; align-items: center; gap: 0.4em; }
+.fortress-altar-curse { background: rgba(110, 63, 163, 0.14); border-bottom: 1px solid #6e3fa3; }
+.fortress-altar-curse h3 { color: #d9a8ff; }
+.fortress-altar-perk { background: rgba(0, 0, 0, 0.15); }
+/* Decorative front-border overlay (see perkCardEl() in js/ui/fortress-ui.js)
+   — sits on top of the card's own content but never intercepts clicks. */
+.fortress-perk-card-frame {
+  position: absolute; inset: 0; background-size: 100% 100%; background-repeat: no-repeat;
+  pointer-events: none;
+}
+
+@media (max-width: 720px) {
+  .fortress-perk-card { width: 44%; }
+}
+
+/* ── rest node (level up + lend real relics/weapon) ── */
+.fortress-rest-row { padding: 0.8em; margin-bottom: 0.7em; }
+.fortress-rest-gear { gap: 0.6em; margin-top: 0.7em; flex-wrap: wrap; }
+.fortress-rest-slot {
+  cursor: url('../assets/ui/cursor.png') 9 9, pointer;
+  display: flex; flex-direction: column; align-items: center; gap: 0.3em;
+  padding: 0.5em; border-radius: 6px; border: 1px solid var(--line-bright);
+  background: var(--bg2, #1c160e); transition: border-color 0.15s ease;
+}
+.fortress-rest-slot:hover { border-color: var(--gold-dim); }
+.fortress-rest-slot-empty {
+  width: 92px; height: 92px; display: flex; align-items: center; justify-content: center;
+  border: 1px dashed var(--line-bright); border-radius: 6px; text-align: center; padding: 0.3em;
+}
+.fortress-rest-picker-grid { gap: 0.7em; flex-wrap: wrap; margin: 0.6em 0; }
+
+/* ── trap dice-roll reveal ── */
+.fortress-trap-body { text-align: center; }
+.fortress-dice-roll {
+  width: 72px; height: 72px; margin: 0.8em auto; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 1.8em; color: var(--dim);
+  background: linear-gradient(160deg, #3c3120 0%, #241c12 55%, #14100a 100%);
+  border: 2px solid var(--line-bright);
+  animation: fortressDiceSpin 1.1s ease infinite;
+}
+/* Once DS.Assets.fortress('dice') has real art, the die image itself becomes
+   the background (cover, no gradient) and the rolled number sits on top of it
+   as plain text — same box, same reveal states, just real art instead of the
+   gradient placeholder. */
+.fortress-dice-roll.has-art { background-size: cover; background-position: center; text-shadow: 0 1px 3px #000, 0 0 6px #000; }
+.fortress-dice-roll.revealed { animation: none; }
+.fortress-dice-roll.revealed.tier-heavy { border-color: var(--hp-bright); color: var(--hp-bright); }
+.fortress-dice-roll.revealed.tier-light { border-color: var(--gold-dim); color: var(--gold-bright); }
+.fortress-dice-roll.revealed.tier-safe { border-color: var(--heal); color: var(--heal); }
+@keyframes fortressDiceSpin {
+  0%, 100% { transform: rotate(-4deg) scale(1); }
+  50% { transform: rotate(4deg) scale(1.06); }
+}
+
+.reduce-motion .fortress-dice-roll { animation: none; }

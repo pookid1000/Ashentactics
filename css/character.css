@@ -1,0 +1,117 @@
+/* ASHEN TACTICS — character/inventory/crafting styling. Original artwork/styling. */
+
+.roster-grid { display: flex; flex-wrap: wrap; gap: 0.7em; margin-top: 0.7em; }
+
+.roster-filters { margin-bottom: 0.6em; }
+
+/* Signature yellow glow on hover, replacing the faint default card hover glow
+   just for the Company roster — brighter and more saturated than the game's
+   usual muted gold accent, so a warrior visibly lights up under the cursor. */
+.roster-grid .ds-card:hover {
+  border-color: #ffe066;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55), 0 0 26px rgba(255, 224, 102, 0.75), 0 0 0 2px rgba(255, 224, 102, 0.35);
+}
+
+.char-hero { display: flex; gap: 1.2em; padding: 1em 1.2em; align-items: center; margin-bottom: 0.8em; flex-wrap: wrap; }
+
+/* Character detail screen: same full-bleed pinned-backdrop pattern as the other
+   Company/Expedition/etc. screens (see .screen-bg-parchment in theme.css), except
+   the image itself is the viewed character's own portrait art, heavily blurred and
+   darkened so it reads as soft ambience behind the sharp portrait/stat panels
+   rather than competing with them. Works for every character automatically since
+   it just points at DS.Assets.portrait(c.id) (see character-ui.js). */
+.char-detail-screen { position: relative; max-width: none; }
+.char-detail-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  pointer-events: none;
+  filter: blur(32px) brightness(0.5) saturate(1.15);
+  transform: scale(1.15); /* hides the soft transparent fringe blur leaves at the image edges */
+}
+.char-detail-bg-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 30%, rgba(8, 7, 6, 0.35) 0%, rgba(8, 7, 6, 0.8) 100%);
+}
+
+.detail-panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 0.9em 1.1em; display: flex; flex-direction: column; gap: 0.5em; }
+
+/* Skins tab — a picker of clickable option cards (Default + each owned skin),
+   the equipped one highlighted with the same .selected glow used elsewhere. */
+.skin-grid { flex-wrap: wrap; gap: 0.8em; }
+.skin-option { display: flex; flex-direction: column; align-items: center; gap: 0.3em; text-align: center; }
+.skin-option-preview {
+  width: 100%; height: 110px; border-radius: 6px; overflow: hidden;
+  background: #0c0906; display: flex; align-items: center; justify-content: center;
+}
+.skin-option-preview-art, .skin-option-preview .ds-portrait { width: 100%; height: 100%; }
+.skin-option-preview .ds-portrait { border-radius: 6px; }
+.skin-option-preview-art { object-fit: cover; object-position: center top; }
+.power-line { font-size: 1.2em; font-family: var(--font-display); }
+.stat-row { border-bottom: 1px dashed #2a241c; padding: 0.3em 0; }
+.stat-row:last-child { border-bottom: none; }
+
+.trace-row { display: flex; gap: 0.6em; flex-wrap: wrap; }
+.trace-node {
+  flex: 1 1 220px; max-width: 320px;
+  border: 1px solid var(--line); border-radius: 6px; padding: 0.6em 0.8em;
+  background: linear-gradient(165deg, var(--bg3), var(--bg2));
+  display: flex; flex-direction: column; gap: 0.3em;
+}
+.trace-node.unlocked { border-color: var(--gold-dim); background: linear-gradient(165deg, #2a2313, var(--bg2)); box-shadow: inset 0 0 18px rgba(201, 168, 76, 0.06); }
+.trace-node.available { border-color: var(--line-bright); }
+.trace-node.locked { opacity: 0.55; }
+.trace-name { font-family: var(--font-display); font-size: 0.9em; color: var(--gold-bright); }
+
+.ability-block { border-bottom: 1px dashed #2a241c; padding: 0.5em 0; }
+.ability-block:last-child { border-bottom: none; }
+
+/* ── Relics tab: equipped-slot grid + draggable collection strip ── */
+.relic-tab-row { display: flex; gap: 1.2em; align-items: flex-start; flex-wrap: wrap; }
+.relic-tab-main { flex: 2 1 420px; min-width: 0; }
+.relic-tab-side {
+  flex: 1 1 220px; min-width: 200px;
+  background: rgba(0, 0, 0, 0.18); border: 1px solid var(--line); border-radius: 8px;
+  padding: 0.7em 0.9em;
+}
+.relic-tab-side .text-heal { margin-bottom: 0.5em; line-height: 1.4; }
+.relic-slots-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 0.7em; }
+.relic-slot-cell {
+  display: flex; flex-direction: column; align-items: center; gap: 0.4em;
+  padding: 0.7em; border: 1px dashed var(--line); border-radius: 8px;
+  background: rgba(0, 0, 0, 0.15); text-align: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+.relic-slot-cell.drop-hover { border-color: var(--gold-bright); background: rgba(201, 168, 76, 0.12); border-style: solid; animation: pulseGold 0.9s ease infinite; }
+/* One-shot flash when a relic just landed in this slot — see justEquippedSlot
+   in character-ui.js. Ends back at the normal resting look (not mid-pulse). */
+.relic-slot-cell.just-equipped { animation: relicSlotFlash 0.6s ease; }
+@keyframes relicSlotFlash {
+  0% { border-color: var(--gold-bright); border-style: solid; background: rgba(240, 217, 138, 0.3); box-shadow: 0 0 22px rgba(240, 217, 138, 0.55); }
+  100% { border-color: var(--line); border-style: dashed; background: rgba(0, 0, 0, 0.15); box-shadow: 0 0 0 rgba(240, 217, 138, 0); }
+}
+.relic-slot-label { letter-spacing: 0.08em; }
+.relic-slot-empty { min-height: 5.4em; display: flex; align-items: center; justify-content: center; }
+
+.relic-collection-strip {
+  display: flex; flex-wrap: wrap; align-content: flex-start; gap: 0.6em;
+  max-height: 340px; overflow-y: auto; overflow-x: hidden;
+  padding: 0.6em; border: 1px solid var(--line); border-radius: 8px;
+  background: rgba(0, 0, 0, 0.15);
+  cursor: grab; user-select: none;
+}
+.relic-collection-strip.grabbing { cursor: grabbing; }
+.relic-collection-strip .relic-card-big { cursor: grab; transition: transform 0.15s, box-shadow 0.15s; }
+.relic-collection-strip .relic-card-big.dragging { opacity: 0.4; transform: scale(1.06); box-shadow: 0 0 16px 3px rgba(212, 175, 55, 0.55); }
+
+.recipe-card { display: flex; gap: 1em; align-items: center; padding: 0.8em 1em; }
+
+@media (max-width: 760px) {
+  .char-hero { gap: 0.7em; }
+}

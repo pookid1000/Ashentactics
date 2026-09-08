@@ -1,0 +1,259 @@
+/* ASHEN TACTICS — summoning screen + ritual animation. Original artwork/styling. */
+
+.gacha-screen .screen-inner { max-width: 1100px; }
+
+.banner-strip { display: flex; gap: 0.5em; margin-bottom: 0.8em; overflow-x: auto; padding-bottom: 0.3em; }
+.banner-chip {
+  display: flex; align-items: center; gap: 0.4em; flex: 0 0 auto;
+  padding: 0.4em 1em; border: 1px solid var(--line); border-radius: 20px;
+  cursor: url('../assets/ui/cursor.png') 9 9, pointer; color: var(--dim); background: var(--bg2);
+  transition: all 0.15s ease;
+}
+.banner-chip:hover { color: var(--bone); border-color: var(--gold-dim); }
+.banner-chip.active { color: var(--gold-bright); border-color: var(--gold); background: rgba(201, 168, 76, 0.08); box-shadow: 0 0 8px rgba(201, 168, 76, 0.2); }
+
+.sign-icon-art { width: 1.2em; height: 1.2em; object-fit: contain; vertical-align: -0.25em; }
+.sign-cost { display: flex; align-items: center; gap: 0.25em; justify-content: center; }
+
+.banner-hero {
+  position: relative;
+  overflow: hidden;
+  display: flex; gap: 1.5em; padding: 1.4em; flex-wrap: wrap;
+  background:
+    radial-gradient(ellipse 80% 100% at 15% 50%, color-mix(in srgb, var(--b2) 22%, transparent), transparent 60%),
+    linear-gradient(160deg, var(--b1), var(--bg1) 70%);
+}
+/* Full featured-character/weapon art as the card's own backdrop (replaces the old
+   small thumbnail icon) — anchored left, covering roughly the left half, with
+   .banner-portrait-fade blending it into black toward the right so .banner-right's
+   pity meter and summon buttons always sit on a solid, readable background. */
+.banner-portrait-bg {
+  position: absolute;
+  inset: 0;
+  width: 58%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  z-index: 0;
+  pointer-events: none;
+}
+.banner-portrait-bg.contain-fit {
+  object-fit: contain;
+  object-position: center center;
+  padding: 2em 1em;
+}
+.banner-portrait-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(to right,
+    rgba(7, 6, 5, 0.15) 0%,
+    rgba(7, 6, 5, 0.35) 30%,
+    rgba(7, 6, 5, 0.75) 50%,
+    rgba(7, 6, 5, 0.94) 68%,
+    rgba(7, 6, 5, 0.98) 100%);
+}
+.banner-left, .banner-right { position: relative; z-index: 1; }
+.banner-left { flex: 1 1 340px; display: flex; flex-direction: column; gap: 0.6em; }
+.banner-left .banner-kind, .banner-left h2, .banner-left p, .banner-left .stars,
+.banner-left .display, .banner-left .small {
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9), 0 0 16px rgba(0, 0, 0, 0.6);
+}
+.banner-kind { color: var(--gold); letter-spacing: 0.18em; font-family: var(--font-display); }
+.banner-right { flex: 0 1 300px; display: flex; flex-direction: column; gap: 0.8em; justify-content: center; }
+.pity-box { background: rgba(0, 0, 0, 0.35); border: 1px solid var(--line); border-radius: 6px; padding: 0.6em 0.8em; }
+
+/* ── Ritual overlay ── */
+.ritual-overlay {
+  position: fixed; inset: 0; z-index: 500; background: #030202;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.4s ease; overflow: hidden;
+}
+.ritual-overlay.leaving { animation: cutinOut 0.3s ease forwards; }
+.ritual-canvas { position: absolute; inset: 0; }
+.ritual-art-bg {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  z-index: 1; animation: ritualKenBurns var(--ritual-dur, 6s) ease-out forwards;
+}
+.ritual-overlay.has-art .ritual-canvas { z-index: 2; mix-blend-mode: screen; }
+.ritual-overlay.has-art .ritual-label { z-index: 3; }
+.ritual-overlay.has-art .ritual-skip { z-index: 4; }
+@keyframes ritualKenBurns {
+  from { transform: scale(1.06); filter: brightness(0.55) saturate(0.7); }
+  60% { filter: brightness(0.85) saturate(1); }
+  to { transform: scale(1); filter: brightness(1) saturate(1.05); }
+}
+
+.ritual-bonfire { position: absolute; left: 50%; top: 62%; transform: translate(-50%, -50%); z-index: 2; }
+.ritual-sword {
+  position: absolute; left: 50%; bottom: 6px; transform: translateX(-50%) rotate(6deg);
+  width: 7px; height: 120px;
+  background: linear-gradient(180deg, #6a6458 0%, #3c362c 60%, #241f18 100%);
+  clip-path: polygon(50% 0%, 100% 8%, 72% 100%, 28% 100%, 0% 8%);
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.8));
+}
+.ritual-sword::before {
+  content: ''; position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+  width: 34px; height: 8px; border-radius: 4px;
+  background: linear-gradient(90deg, #241f18, #57503f, #241f18);
+}
+.ritual-mound {
+  width: 130px; height: 34px; border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 30%, #2c241a, #16110c 70%);
+  box-shadow: inset 0 4px 10px #000;
+}
+.ritual-flame {
+  position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%);
+  width: 26px; height: 40px; border-radius: 50% 50% 45% 45%;
+  background: radial-gradient(ellipse at 50% 85%, var(--tier-color, #d4af37), transparent 75%);
+  opacity: 0.12; filter: blur(2px);
+  transition: opacity 1.2s ease, transform 1.2s ease;
+}
+.phase-gather .ritual-flame { opacity: 0.45; transform: translateX(-50%) scale(1.25); }
+.phase-ignite .ritual-flame {
+  opacity: 1; transform: translateX(-50%) scale(2.1);
+  animation: flameDance 0.5s ease infinite alternate;
+  box-shadow: 0 0 60px var(--tier-color, #d4af37);
+}
+.phase-crown .ritual-flame {
+  transform: translateX(-50%) scale(3.4);
+  box-shadow: 0 0 140px var(--tier-color, #d4af37), 0 0 40px #fff;
+}
+.phase-ignite .ritual-sword { filter: drop-shadow(0 0 10px var(--tier-color, #d4af37)); }
+
+.ritual-label {
+  position: absolute; bottom: 16%; left: 0; right: 0; text-align: center; z-index: 3;
+  font-family: var(--font-display); letter-spacing: 0.3em; font-size: 1.05em;
+  color: var(--tier-color, var(--gold)); text-shadow: 0 0 16px currentColor;
+  animation: breathe 2.2s ease infinite;
+}
+.tier-5 .ritual-label { font-size: 1.5em; }
+.ritual-skip { position: absolute; bottom: 5%; right: 5%; z-index: 4; opacity: 0.7; }
+
+@keyframes flameDance {
+  from { border-radius: 50% 50% 45% 45%; transform: translateX(-50%) scale(2.05) rotate(-2deg); }
+  to { border-radius: 45% 55% 50% 42%; transform: translateX(-50%) scale(2.18) rotate(2deg); }
+}
+
+/* ── Results ── */
+.gacha-results-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.7em; padding: 0.5em 0;
+}
+.gacha-results-grid.single { grid-template-columns: minmax(200px, 300px); justify-content: center; }
+.gr-hint { margin-bottom: 0.6em; text-align: center; }
+/* Outer, never-clipped host for each card — the card itself may set
+   overflow:hidden (see .big-art below, needed to keep its full-bleed art
+   inside rounded corners), which would otherwise clip the reveal flash/spark
+   burst since those need to fly out past the card's own edges. */
+.gr-cell { position: relative; animation: gr-deal 0.4s ease backwards; }
+@keyframes gr-deal { from { opacity: 0; transform: translateY(14px) scale(0.94); } to { opacity: 1; transform: none; } }
+.gacha-result {
+  position: relative; text-align: center; padding: 0.9em 0.5em 0.7em; box-sizing: border-box;
+  border-radius: 8px; border: 1px solid var(--rc, var(--line));
+  background:
+    radial-gradient(ellipse 90% 55% at 50% 0%, color-mix(in srgb, var(--rc, #444) 20%, transparent), transparent 70%),
+    linear-gradient(170deg, var(--bg3), var(--bg1) 75%);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--rc, #000) 30%, transparent);
+  /* Every result — icon-sized or full-bleed-art — is the same fixed height so
+     a mixed-rarity pull reads as one even row instead of a jagged one. */
+  height: 230px;
+  display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 0.25em;
+}
+.gr-icon { font-size: 2.4em; filter: drop-shadow(0 0 8px color-mix(in srgb, var(--rc, #fff) 60%, transparent)); }
+.gr-icon-art {
+  display: block; width: 100%; height: 4.6em; object-fit: contain; margin: 0 auto;
+  filter: drop-shadow(0 0 8px color-mix(in srgb, var(--rc, #fff) 60%, transparent));
+}
+.gr-stars { margin: 0.15em 0; }
+.gr-name { font-family: var(--font-display); font-size: 0.85em; line-height: 1.15; min-height: 2.3em; }
+.gr-new {
+  position: absolute; top: 6px; right: 6px;
+  background: var(--danger); color: #fff; font-size: 0.6em; font-family: var(--font-display);
+  padding: 1px 7px; border-radius: 8px; letter-spacing: 0.08em;
+}
+.gr-dupe { color: var(--gold); }
+
+/* ── 4★/5★ results: full-bleed art instead of a small centered icon ── */
+.gacha-result.big-art {
+  justify-content: flex-end;
+  padding: 0.7em 0.5em 0.6em; overflow: hidden;
+}
+.gr-bg-art { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; object-fit: cover; }
+.gr-bg-scrim {
+  position: absolute; inset: 0; z-index: 1;
+  background: linear-gradient(180deg, rgba(6, 5, 4, 0.05) 0%, rgba(6, 5, 4, 0.28) 45%, rgba(6, 5, 4, 0.92) 90%);
+}
+.gacha-result.big-art .gr-stars, .gacha-result.big-art .gr-name, .gacha-result.big-art .gr-sub,
+.gacha-result.big-art .gr-new, .gacha-result.big-art .gr-dupe {
+  position: relative; z-index: 2;
+}
+.gacha-result.big-art .gr-name, .gacha-result.big-art .gr-sub {
+  text-shadow: 0 1px 3px #000, 0 0 8px rgba(0, 0, 0, 0.85);
+}
+
+/* Signature 5★ sheen sweep — same recipe as the roster/battle cards (r5Sheen,
+   defined in battle.css), reused here for any 5★ pull, character or weapon. */
+.gacha-result.r5::after {
+  content: ''; position: absolute; inset: 0; z-index: 5; pointer-events: none;
+  border-radius: 8px;
+  background: linear-gradient(115deg, transparent 42%, rgba(255, 246, 210, 0.55) 50%, transparent 58%);
+  background-size: 300% 300%;
+  background-repeat: no-repeat;
+  animation: r5Sheen 3.2s ease-in-out infinite alternate;
+  mix-blend-mode: overlay;
+}
+
+/* ── Face-down reveal ──
+   Every result starts covered by an opaque .gr-cardback (z-index above
+   everything, including the r5 sheen). .gr-content holds the actual pulled
+   item/character and stays invisible until .revealed is added. Clicking the
+   cardback reveals it; 4★/5★ additionally get a shake + colored flash + spark
+   burst (purple for 4★, gold for 5★) appended to the un-clipped .gr-cell. */
+.gr-content { opacity: 0; transition: opacity 0.3s ease 0.1s; }
+.gacha-result.revealed .gr-content { opacity: 1; }
+.gr-cardback {
+  position: absolute; inset: 0; z-index: 10; border-radius: 8px; cursor: url('../assets/ui/cursor.png') 9 9, pointer;
+  background: url('../assets/ui/card_back.jpg') center / cover no-repeat, #0c0906;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.gacha-result.revealed .gr-cardback { opacity: 0; transform: scale(0.82) rotate(-3deg); pointer-events: none; }
+
+@keyframes gr-shake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  12% { transform: translateX(-9px) rotate(-4deg); }
+  26% { transform: translateX(8px) rotate(4deg); }
+  40% { transform: translateX(-7px) rotate(-3deg); }
+  54% { transform: translateX(6px) rotate(3deg); }
+  68% { transform: translateX(-4px) rotate(-1.5deg); }
+  82% { transform: translateX(2px) rotate(1deg); }
+}
+.gacha-result.gr-shaking { animation: gr-shake 0.55s ease; }
+
+.gr-flash {
+  position: absolute; inset: -20%; z-index: 12; border-radius: 12px; pointer-events: none; opacity: 0;
+}
+.gr-flash.purple { background: radial-gradient(circle, rgba(184, 110, 255, 0.9), rgba(184, 110, 255, 0) 68%); animation: gr-flash-pop 0.65s ease-out forwards; }
+.gr-flash.gold { background: radial-gradient(circle, rgba(255, 224, 120, 0.95), rgba(255, 224, 120, 0) 68%); animation: gr-flash-pop 0.75s ease-out forwards; }
+@keyframes gr-flash-pop {
+  0% { opacity: 0; transform: scale(0.5); }
+  30% { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(1.6); }
+}
+
+.gr-spark {
+  position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; border-radius: 50%;
+  z-index: 13; pointer-events: none;
+  animation: gr-spark-fly 0.75s cubic-bezier(0.2, 0.7, 0.3, 1) forwards;
+}
+.gr-spark.purple { background: #cd93ff; box-shadow: 0 0 10px 3px rgba(205, 147, 255, 0.85); }
+.gr-spark.gold { background: #ffe27a; box-shadow: 0 0 10px 3px rgba(255, 226, 122, 0.85); }
+@keyframes gr-spark-fly {
+  0% { transform: translate(-50%, -50%) translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -50%) translate(var(--sx), var(--sy)) scale(0.15); opacity: 0; }
+}
+
+@media (max-width: 760px) {
+  .gacha-results-grid { grid-template-columns: repeat(3, 1fr); }
+  .banner-hero { padding: 0.9em; }
+}
